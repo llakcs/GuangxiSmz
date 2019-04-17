@@ -176,7 +176,10 @@ public class GxSmzSdk implements SmzSdkImpl {
             DbManger.getInstance().cleanEmployeeListBeanAll();
             //删除全部百度库人脸数据
             if(mGxSmzSdkListner != null){
-                mGxSmzSdkListner.cleanAllFace();
+                List<Employee> list =DbManger.getInstance().queryEmloyeeList();
+                if(list != null && list.size() != 0) {
+                    mGxSmzSdkListner.cleanAllFace(list);
+                }
             }
 //            queryEmployeeList();
         }
