@@ -11,5 +11,6 @@ public interface GxSmzSdkListner {
     void deleteBaiduFace(String empId);
     void faceRegister(Bitmap bitmap,String empId);
     void cleanAllFace(List<Employee> employees);
+    void loadFacesFromDB();
     void projectInfo(int pNumber);
 }
