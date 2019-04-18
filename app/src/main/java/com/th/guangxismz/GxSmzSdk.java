@@ -96,8 +96,9 @@ public class GxSmzSdk implements SmzSdkImpl {
     }
 
     @Override
-    public void setGxSmzSdkListner(GxSmzSdkListner gxSmzSdkListner) {
+    public GxSmzSdk setGxSmzSdkListner(GxSmzSdkListner gxSmzSdkListner) {
         this.mGxSmzSdkListner = gxSmzSdkListner;
+        return this;
     }
 
     private void login(){
