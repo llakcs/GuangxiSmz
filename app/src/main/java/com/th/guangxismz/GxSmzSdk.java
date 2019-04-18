@@ -268,6 +268,9 @@ public class GxSmzSdk implements SmzSdkImpl {
                 }
             }
         }
+        if(mGxSmzSdkListner != null){
+             mGxSmzSdkListner.loadFacesFromDB();
+        }
         //服务器数据与本地对比
         for(Employee rdata:remotedata){
              if(!localdata.contains(rdata)){
