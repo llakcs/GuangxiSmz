@@ -9,4 +9,5 @@ public interface SmzSdkImpl {
     GxSmzSdk config(String ApiKey, String ClientSerial, String ApiSecret);
     void build();
     GxSmzSdk setGxSmzSdkListner(GxSmzSdkListner gxSmzSdkListner);
+
 }

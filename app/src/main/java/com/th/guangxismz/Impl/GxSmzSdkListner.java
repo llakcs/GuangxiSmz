@@ -13,4 +13,5 @@ public interface GxSmzSdkListner {
     void cleanAllFace(List<Employee> employees);
     void loadFacesFromDB();
     void projectInfo(int pNumber);
+    void getFlag(boolean flag);
 }
