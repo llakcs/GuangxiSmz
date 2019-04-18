@@ -380,12 +380,12 @@ public class GxSmzSdk implements SmzSdkImpl {
                         if(!TextUtils.isEmpty(facephoto)){
                             Bitmap bitmap = base64ToBitmap(facephoto);
                             try {
-                                Thread.sleep(100);
+                                Thread.sleep(500);
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
                             if(bitmap !=null){
-                                mGxSmzSdkListner.faceRegister(bitmap,employeeListBean.getEmp_id());
+                                mGxSmzSdkListner.faceRegister(bitmap,employeeListBean.getEmp_id(),employeeListBean.getEmp_name());
                             }
                         }else{
                             LogUtil.e("###用户id ="+employeeListBean.getEmp_id()+" 用户名:"+employeeListBean.getEmp_name()+"没有照片");
