@@ -28,11 +28,14 @@ import com.th.guangxismz.utils.RxScheduler;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -93,6 +96,20 @@ public class GxSmzSdk implements SmzSdkImpl {
     public void build() {
         //签到
         login();
+        Flowable.interval(1000,60000, TimeUnit.MILLISECONDS)
+                .onBackpressureDrop()
+                .observeOn(Schedulers.newThread())
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(Long aLong) throws Exception {
+                        List<Employee> employeeList = DbManger.getInstance().queryEmloyeeList();
+                      if(employeeList != null){
+                          if(mGxSmzSdkListner != null){
+                              mGxSmzSdkListner.projectInfo(employeeList.size());
+                          }
+                      }
+                    }
+                });
     }
 
     @Override
