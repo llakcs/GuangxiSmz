@@ -29,12 +29,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -374,7 +369,6 @@ public class GxSmzSdk implements SmzSdkImpl {
             public void doOnIOThread() {
                 for(EmployeeListBean employeeListBean:listBeans){
                     LogUtil.d("##服务器下载成功 用户id ="+employeeListBean.getEmp_id()+" 用户姓名="+employeeListBean.getEmp_name());
-                    DbManger.getInstance().addEmployeeList(employeeListBean);
                     if(mGxSmzSdkListner != null){
                         String facephoto=employeeListBean.getFacephoto();
                         if(!TextUtils.isEmpty(facephoto)){
@@ -385,13 +379,18 @@ public class GxSmzSdk implements SmzSdkImpl {
                                 e.printStackTrace();
                             }
                             if(bitmap !=null){
-                                mGxSmzSdkListner.faceRegister(bitmap,employeeListBean.getEmp_id(),employeeListBean.getEmp_name());
+                               boolean result = mGxSmzSdkListner.faceRegister(bitmap,employeeListBean.getEmp_id(),employeeListBean.getEmp_name());
+                               if(result){
+                                   DbManger.getInstance().addEmployeeList(employeeListBean);
+                               }
                             }
                         }else{
                             LogUtil.e("###用户id ="+employeeListBean.getEmp_id()+" 用户名:"+employeeListBean.getEmp_name()+"没有照片");
                         }
-
                     }
+                }
+                if(mGxSmzSdkListner != null){//重新加载百度数据库
+                    mGxSmzSdkListner.loadFacesFromDB();
                 }
             }
         });
