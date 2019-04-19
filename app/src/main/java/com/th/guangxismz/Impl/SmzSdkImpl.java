@@ -13,5 +13,7 @@ public interface SmzSdkImpl {
     void build();
     GxSmzSdk setGxSmzSdkListner(GxSmzSdkListner gxSmzSdkListner);
     EmployeeListBean queryImageForId(String empId);
+    void addEmployeeList(EmployeeListBean bean);
+    void deleteEmployeeList(EmployeeListBean bean);
 
 }

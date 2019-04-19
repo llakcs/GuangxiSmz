@@ -152,6 +152,17 @@ public class GxSmzSdk implements SmzSdkImpl {
         return employeeListBean;
     }
 
+
+    @Override
+    public void addEmployeeList(EmployeeListBean bean) {
+        DbManger.getInstance().addEmployeeList(bean);
+    }
+
+    @Override
+    public void deleteEmployeeList(EmployeeListBean bean) {
+        DbManger.getInstance().deleteEmployeeList(bean);
+    }
+
     //心跳
     private void heartBeat() {
         GXSmzManger.getInstance().keepalive(new rxApiCallBack<GeneralResult>() {
@@ -367,7 +378,7 @@ public class GxSmzSdk implements SmzSdkImpl {
      * @param base64Data
      * @return
      */
-    public static Bitmap base64ToBitmap(String base64Data) {
+    public  Bitmap base64ToBitmap(String base64Data) {
         byte[] bytes = Base64.decode(base64Data, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
@@ -390,10 +401,10 @@ public class GxSmzSdk implements SmzSdkImpl {
                                 e.printStackTrace();
                             }
                             if (bitmap != null) {
-                                boolean result = mGxSmzSdkListner.faceRegister(bitmap, employeeListBean.getEmp_id(), employeeListBean.getEmp_name());
-                                if (result) {
-                                    DbManger.getInstance().addEmployeeList(employeeListBean);
-                                }
+                                 mGxSmzSdkListner.faceRegister(bitmap, employeeListBean.getEmp_id(), employeeListBean.getEmp_name());
+//                                if (result) {
+//                                    DbManger.getInstance().addEmployeeList(employeeListBean);
+//                                }
                             }
                         } else {
                             LogUtil.e("###用户id =" + employeeListBean.getEmp_id() + " 用户名:" + employeeListBean.getEmp_name() + "没有照片");
