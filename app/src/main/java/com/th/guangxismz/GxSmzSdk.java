@@ -401,7 +401,7 @@ public class GxSmzSdk implements SmzSdkImpl {
                                 e.printStackTrace();
                             }
                             if (bitmap != null) {
-                                 mGxSmzSdkListner.faceRegister(bitmap, employeeListBean.getEmp_id(), employeeListBean.getEmp_name());
+                                 mGxSmzSdkListner.faceRegister(bitmap, employeeListBean);
 //                                if (result) {
 //                                    DbManger.getInstance().addEmployeeList(employeeListBean);
 //                                }
