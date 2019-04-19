@@ -15,5 +15,6 @@ public interface SmzSdkImpl {
     EmployeeListBean queryImageForId(String empId);
     void addEmployeeList(EmployeeListBean bean);
     void deleteEmployeeList(EmployeeListBean bean);
+    void uploadAttendance(String Direction, String Person_id, String Person_name, String Person_type, String Site_photo, String way);
 
 }

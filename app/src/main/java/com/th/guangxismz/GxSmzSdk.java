@@ -433,9 +433,9 @@ public class GxSmzSdk implements SmzSdkImpl {
             }
         });
     }
-
     //上传考勤记录
-    private void uploadAttendance(String Direction, String Person_id, String Person_name, String Person_type, String Site_photo, String way) {
+    @Override
+    public void uploadAttendance(String Direction, String Person_id, String Person_name, String Person_type, String Site_photo, String way) {
         GXSmzManger.getInstance().uploadPassedLog(Direction, Person_id, Person_name, Person_type, Site_photo, way, new rxApiCallBack() {
             @Override
             public void success(Object var1) {
@@ -448,6 +448,21 @@ public class GxSmzSdk implements SmzSdkImpl {
             }
         });
     }
+
+
+//    private void uploadAttendance(String Direction, String Person_id, String Person_name, String Person_type, String Site_photo, String way) {
+//        GXSmzManger.getInstance().uploadPassedLog(Direction, Person_id, Person_name, Person_type, Site_photo, way, new rxApiCallBack() {
+//            @Override
+//            public void success(Object var1) {
+//
+//            }
+//
+//            @Override
+//            public void fail(int var1, String var2) {
+//
+//            }
+//        });
+//    }
 
 
 }
