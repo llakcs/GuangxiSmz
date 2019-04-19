@@ -29,6 +29,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import io.reactivex.Flowable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -40,10 +41,12 @@ public class GxSmzSdk implements SmzSdkImpl {
     private static final int NUM = 10;
     private GxSmzSdkListner mGxSmzSdkListner;
     private WeakReference<Context> mContext;
-    private static  class  RxHoler{
+
+    private static class RxHoler {
         private static final GxSmzSdk instance = new GxSmzSdk();
     }
-    public static GxSmzSdk getInstance(){
+
+    public static GxSmzSdk getInstance() {
         return RxHoler.instance;
     }
 
@@ -70,8 +73,6 @@ public class GxSmzSdk implements SmzSdkImpl {
 //    };
 
 
-
-
     @Override
     public GxSmzSdk InitSdk(Context context) {
         mContext = new WeakReference<Context>(context);
@@ -83,7 +84,7 @@ public class GxSmzSdk implements SmzSdkImpl {
     @Override
     public GxSmzSdk config(String ApiKey, String ClientSerial, String ApiSecret) {
         //初始化配置
-        SmzConfig.getInstance().Init(ApiKey,ClientSerial,ApiSecret);
+        SmzConfig.getInstance().Init(ApiKey, ClientSerial, ApiSecret);
         return this;
     }
 
@@ -91,18 +92,18 @@ public class GxSmzSdk implements SmzSdkImpl {
     public void build() {
         //签到
         login();
-        Flowable.interval(1000,60000, TimeUnit.MILLISECONDS)
+        Flowable.interval(1000, 60000, TimeUnit.MILLISECONDS)
                 .onBackpressureDrop()
                 .observeOn(Schedulers.newThread())
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long aLong) throws Exception {
                         List<Employee> employeeList = DbManger.getInstance().queryEmloyeeList();
-                      if(employeeList != null){
-                          if(mGxSmzSdkListner != null){
-                              mGxSmzSdkListner.projectInfo(employeeList.size());
-                          }
-                      }
+                        if (employeeList != null) {
+                            if (mGxSmzSdkListner != null) {
+                                mGxSmzSdkListner.projectCount(employeeList.size());
+                            }
+                        }
                     }
                 });
     }
@@ -113,7 +114,7 @@ public class GxSmzSdk implements SmzSdkImpl {
         return this;
     }
 
-    private void login(){
+    private void login() {
         GXSmzManger.getInstance().signIn(new rxApiCallBack<GeneralResult>() {
             @Override
             public void success(GeneralResult var1) {
@@ -129,32 +130,31 @@ public class GxSmzSdk implements SmzSdkImpl {
 
             @Override
             public void fail(int var1, String var2) {
-                LogUtil.e("签到失败 errcode ="+var1+" //errmsg ="+var2);
+                LogUtil.e("签到失败 errcode =" + var1 + " //errmsg =" + var2);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                       login();
+                        login();
                     }
-                },600*1000);
+                }, 600 * 1000);
             }
         });
     }
 
     //心跳
-    private  void  heartBeat(){
+    private void heartBeat() {
         GXSmzManger.getInstance().keepalive(new rxApiCallBack<GeneralResult>() {
             @Override
             public void success(GeneralResult var1) {
-                new Handler().postDelayed(heartBeatRunnable,60*100*1000);
+                new Handler().postDelayed(heartBeatRunnable, 60 * 100 * 1000);
             }
 
             @Override
             public void fail(int var1, String var2) {
-                new Handler().postDelayed(heartBeatRunnable,60*10*1000);
+                new Handler().postDelayed(heartBeatRunnable, 60 * 10 * 1000);
             }
         });
     }
-
 
 
     //同步平台时间
@@ -173,52 +173,53 @@ public class GxSmzSdk implements SmzSdkImpl {
 //    }
 
 
-
-
     //同步项目信息
-    private void synchProjectInfo(String project_name){
-        LogUtil.e("项目名称: "+project_name);
-        if(TextUtils.isEmpty(project_name)){
-           return;
+    private void synchProjectInfo(String project_name) {
+        LogUtil.e("项目名称: " + project_name);
+        if (TextUtils.isEmpty(project_name)) {
+            return;
         }
-        if(TextUtils.isEmpty(DPDB.getProjectName()) || !DPDB.getProjectName().equals(project_name)){
-             DPDB.setProjectName(project_name);
-             //拉取所有人员信息,清空原有项目信息
-            LogUtil.e("拉取所有人员信息,清空原有项目信息: "+project_name);
+        if (mGxSmzSdkListner == null) {
+            return;
+        }
+        mGxSmzSdkListner.projectName(project_name);
+        if (TextUtils.isEmpty(DPDB.getProjectName()) || !DPDB.getProjectName().equals(project_name)) {
+            DPDB.setProjectName(project_name);
+            //拉取所有人员信息,清空原有项目信息
+            LogUtil.e("拉取所有人员信息,清空原有项目信息: " + project_name);
             DbManger.getInstance().cleanEmployeeAll();
             DbManger.getInstance().cleanEmployeeListBeanAll();
             //删除全部百度库人脸数据
-            if(mGxSmzSdkListner != null){
-                List<Employee> list =DbManger.getInstance().queryEmloyeeList();
-                if(list != null && list.size() != 0) {
-                    mGxSmzSdkListner.cleanAllFace(list);
-                }
+            List<Employee> list = DbManger.getInstance().queryEmloyeeList();
+            if (list != null && list.size() != 0) {
+                mGxSmzSdkListner.cleanAllFace(list);
             }
 //            queryEmployeeList();
         }
-            //发送散列
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    queryListHash();
-                }
-            },3000);
+        //发送散列
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                queryListHash();
+            }
+        }, 3000);
 
     }
+
     //发送人员散列
-    private void queryListHash(){
+    private void queryListHash() {
         GXSmzManger.getInstance().listhash(new rxApiCallBack<HashResult>() {
             @Override
             public void success(HashResult var1) {
-                LogUtil.e("####发送人员散列Emp_count :"+var1.getEmp_count()+" //var1.getSha1()"+var1.getSha1());
+                LogUtil.e("####发送人员散列Emp_count :" + var1.getEmp_count() + " //var1.getSha1()" + var1.getSha1());
 
-                if(DbManger.getInstance().queryEmloyeeList() != null || DbManger.getInstance().queryEmloyeeList().size() != var1.getEmp_count()){
+                if (DbManger.getInstance().queryEmloyeeList() != null || DbManger.getInstance().queryEmloyeeList().size() != var1.getEmp_count()) {
                     //对比人员信息
                     GXSmzManger.getInstance().queryEmployeeList(new rxApiCallBack<employeeResult>() {
                         @Override
                         public void success(employeeResult var1) {
-                            List<EmployeeBo> updatelist = comparedata(DbManger.getInstance().queryEmloyeeList(),var1.getEmployee_list());
-                            if(updatelist != null && updatelist.size() != 0){
+                            List<EmployeeBo> updatelist = comparedata(DbManger.getInstance().queryEmloyeeList(), var1.getEmployee_list());
+                            if (updatelist != null && updatelist.size() != 0) {
                                 //请求需要更新人员列表详细信息
                                 queryEmployeeInfo(updatelist);
                             }
@@ -230,58 +231,56 @@ public class GxSmzSdk implements SmzSdkImpl {
                         }
                     });
                 }
-                new Handler().postDelayed(listHashRunnable,5*60*1000);
+                new Handler().postDelayed(listHashRunnable, 5 * 60 * 1000);
             }
 
             @Override
             public void fail(int var1, String var2) {
-                new Handler().postDelayed(listHashRunnable,30*1000);
+                new Handler().postDelayed(listHashRunnable, 30 * 1000);
             }
         });
     }
 
 
-    private  List<EmployeeBo> comparedata(List<Employee> localdata,List<Employee> remotedata){
+    private List<EmployeeBo> comparedata(List<Employee> localdata, List<Employee> remotedata) {
 
-        if(localdata == null || remotedata == null){
+        if (localdata == null || remotedata == null) {
             return null;
         }
         List<EmployeeBo> updatelist = new ArrayList<>();
         //本地与服务器数据对比
-        for(Employee ldata:localdata){
-            if(!remotedata.contains(ldata)){
+        for (Employee ldata : localdata) {
+            if (!remotedata.contains(ldata)) {
                 //删除本地employee数据
                 DbManger.getInstance().deleteEmployee(ldata);
                 //删除EmployeeListBean表数据
                 List<EmployeeListBean> listBeans = DbManger.getInstance().queryEmployeelistBeanbyId(ldata.getEmp_id());
-                for(EmployeeListBean bean : listBeans){
+                for (EmployeeListBean bean : listBeans) {
                     DbManger.getInstance().deleteEmployeeList(bean);
                 }
                 //删除百度数据库
-                if(mGxSmzSdkListner != null){
+                if (mGxSmzSdkListner != null) {
                     mGxSmzSdkListner.deleteBaiduFace(ldata.getEmp_id());
                 }
             }
         }
-        if(mGxSmzSdkListner != null){
-             mGxSmzSdkListner.loadFacesFromDB();
+        if (mGxSmzSdkListner != null) {
+            mGxSmzSdkListner.loadFacesFromDB();
         }
         //服务器数据与本地对比
-        for(Employee rdata:remotedata){
-             if(!localdata.contains(rdata)){
-                 //添加服务器数据到本地
-                 DbManger.getInstance().addEmployee(rdata);
-                 //添加到更新列表
-                 EmployeeBo employeeBo = new EmployeeBo();
-                 employeeBo.setEmpId(rdata.getEmp_id());
-                 updatelist.add(employeeBo);
-             }
+        for (Employee rdata : remotedata) {
+            if (!localdata.contains(rdata)) {
+                //添加服务器数据到本地
+                DbManger.getInstance().addEmployee(rdata);
+                //添加到更新列表
+                EmployeeBo employeeBo = new EmployeeBo();
+                employeeBo.setEmpId(rdata.getEmp_id());
+                updatelist.add(employeeBo);
+            }
 
         }
         return updatelist;
     }
-
-
 
 
     //获取人员列表
@@ -313,11 +312,11 @@ public class GxSmzSdk implements SmzSdkImpl {
 
 
     //获取人员信息
-    private void queryEmployeeInfo( List<EmployeeBo> employeeBoList){
-        if(employeeBoList == null){
+    private void queryEmployeeInfo(List<EmployeeBo> employeeBoList) {
+        if (employeeBoList == null) {
             return;
         }
-        final List<List<EmployeeBo>> emplist = Lists.partition(employeeBoList,NUM);
+        final List<List<EmployeeBo>> emplist = Lists.partition(employeeBoList, NUM);
         if (emplist == null || emplist.size() == 0) {
             return;
         }
@@ -325,11 +324,11 @@ public class GxSmzSdk implements SmzSdkImpl {
             @Override
             public void doOnIOThread() {
 
-                for(List<EmployeeBo> bo:emplist){
+                for (List<EmployeeBo> bo : emplist) {
                     handlerbo(bo);
-                    try{
+                    try {
                         Thread.sleep(3000);
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -337,11 +336,11 @@ public class GxSmzSdk implements SmzSdkImpl {
         });
     }
 
-    private void handlerbo(List<EmployeeBo> boList){
-        GXSmzManger.getInstance().queryEmployeeInfo(boList,new rxApiCallBack<EmployeeInfoResult>() {
+    private void handlerbo(List<EmployeeBo> boList) {
+        GXSmzManger.getInstance().queryEmployeeInfo(boList, new rxApiCallBack<EmployeeInfoResult>() {
             @Override
             public void success(EmployeeInfoResult var1) {
-                LogUtil.d("####handlerbo.size ="+var1.getEmployee_list().size());
+                LogUtil.d("####handlerbo.size =" + var1.getEmployee_list().size());
                 Register(var1.getEmployee_list());
             }
 
@@ -353,6 +352,7 @@ public class GxSmzSdk implements SmzSdkImpl {
 
     /**
      * base64转为bitmap
+     *
      * @param base64Data
      * @return
      */
@@ -363,33 +363,33 @@ public class GxSmzSdk implements SmzSdkImpl {
 
 
     //注册人脸
-    private void Register(final List<EmployeeListBean> listBeans){
+    private void Register(final List<EmployeeListBean> listBeans) {
         RxScheduler.doOnIOThread(new RxScheduler.IOTask<Void>() {
             @Override
             public void doOnIOThread() {
-                for(EmployeeListBean employeeListBean:listBeans){
-                    LogUtil.d("##服务器下载成功 用户id ="+employeeListBean.getEmp_id()+" 用户姓名="+employeeListBean.getEmp_name());
-                    if(mGxSmzSdkListner != null){
-                        String facephoto=employeeListBean.getFacephoto();
-                        if(!TextUtils.isEmpty(facephoto)){
+                for (EmployeeListBean employeeListBean : listBeans) {
+                    LogUtil.d("##服务器下载成功 用户id =" + employeeListBean.getEmp_id() + " 用户姓名=" + employeeListBean.getEmp_name());
+                    if (mGxSmzSdkListner != null) {
+                        String facephoto = employeeListBean.getFacephoto();
+                        if (!TextUtils.isEmpty(facephoto)) {
                             Bitmap bitmap = base64ToBitmap(facephoto);
                             try {
                                 Thread.sleep(500);
-                            }catch (Exception e){
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            if(bitmap !=null){
-                               boolean result = mGxSmzSdkListner.faceRegister(bitmap,employeeListBean.getEmp_id(),employeeListBean.getEmp_name());
-                               if(result){
-                                   DbManger.getInstance().addEmployeeList(employeeListBean);
-                               }
+                            if (bitmap != null) {
+                                boolean result = mGxSmzSdkListner.faceRegister(bitmap, employeeListBean.getEmp_id(), employeeListBean.getEmp_name());
+                                if (result) {
+                                    DbManger.getInstance().addEmployeeList(employeeListBean);
+                                }
                             }
-                        }else{
-                            LogUtil.e("###用户id ="+employeeListBean.getEmp_id()+" 用户名:"+employeeListBean.getEmp_name()+"没有照片");
+                        } else {
+                            LogUtil.e("###用户id =" + employeeListBean.getEmp_id() + " 用户名:" + employeeListBean.getEmp_name() + "没有照片");
                         }
                     }
                 }
-                if(mGxSmzSdkListner != null){//重新加载百度数据库
+                if (mGxSmzSdkListner != null) {//重新加载百度数据库
                     mGxSmzSdkListner.loadFacesFromDB();
                 }
             }
@@ -397,11 +397,8 @@ public class GxSmzSdk implements SmzSdkImpl {
     }
 
 
-
-
-
     //根据ID来找寻人员信息
-    private void  queryEmployeeIdInfo(String id){
+    private void queryEmployeeIdInfo(String id) {
         GXSmzManger.getInstance().queryEmployeeIdInfo(id, new rxApiCallBack<EmployeeIdInfoResult>() {
             @Override
             public void success(EmployeeIdInfoResult var1) {
@@ -414,8 +411,9 @@ public class GxSmzSdk implements SmzSdkImpl {
             }
         });
     }
+
     //上传考勤记录
-    private void uploadAttendance(String Direction, String Person_id, String Person_name, String Person_type, String Site_photo, String way){
+    private void uploadAttendance(String Direction, String Person_id, String Person_name, String Person_type, String Site_photo, String way) {
         GXSmzManger.getInstance().uploadPassedLog(Direction, Person_id, Person_name, Person_type, Site_photo, way, new rxApiCallBack() {
             @Override
             public void success(Object var1) {
@@ -428,8 +426,6 @@ public class GxSmzSdk implements SmzSdkImpl {
             }
         });
     }
-
-
 
 
 }

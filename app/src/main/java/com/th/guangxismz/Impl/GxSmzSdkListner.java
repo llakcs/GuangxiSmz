@@ -12,5 +12,6 @@ public interface GxSmzSdkListner {
     boolean faceRegister(Bitmap bitmap,String empId,String username);
     void cleanAllFace(List<Employee> employees);
     void loadFacesFromDB();
-    void projectInfo(int pNumber,String projectName);
+    void projectCount(int pNumber);
+    void projectName(String projectName);
 }
