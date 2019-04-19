@@ -141,6 +141,17 @@ public class GxSmzSdk implements SmzSdkImpl {
         });
     }
 
+
+    @Override
+    public EmployeeListBean queryImageForId(String empId) {
+        EmployeeListBean employeeListBean = null;
+        List<EmployeeListBean> employeeListBeans=DbManger.getInstance().queryEmployeelistBeanbyId(empId);
+        for(EmployeeListBean bean:employeeListBeans){
+            employeeListBean = bean;
+        }
+        return employeeListBean;
+    }
+
     //心跳
     private void heartBeat() {
         GXSmzManger.getInstance().keepalive(new rxApiCallBack<GeneralResult>() {
