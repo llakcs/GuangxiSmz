@@ -148,7 +148,7 @@ public class GxSmzSdk implements SmzSdkImpl {
       }
       boolean flag = isEffectiveDate(nowTime,beginTime,endTime);
       if(flag){//处于规定时间
-           LogUtil.e("###考勤记录上传时间 40:00-44:59");
+           LogUtil.e("###开始考勤记录上传 时间 40:00-44:59");
            List<AttendanceBo> attendanceBos = DbManger.getInstance().queryAttendanceBoList();
            if(attendanceBos != null && attendanceBos.size() > 0){
                GXSmzManger.getInstance().uploadAttendance(attendanceBos, new rxApiCallBack() {
@@ -163,6 +163,8 @@ public class GxSmzSdk implements SmzSdkImpl {
                        LogUtil.e("###上传考勤记录失败");
                    }
                });
+           }else {
+               LogUtil.e("###没有考勤记录上传");
            }
       }
 
@@ -378,34 +380,6 @@ public class GxSmzSdk implements SmzSdkImpl {
     }
 
 
-    //获取人员列表
-//    private void queryEmployeeList(){
-//        LogUtil.e("###queryEmployeeList");
-//        GXSmzManger.getInstance().queryEmployeeList(new rxApiCallBack<employeeResult>() {
-//            @Override
-//            public void success(employeeResult var1) {
-//                LogUtil.e("###queryEmployeeList.success");
-//                List<EmployeeBo> boList = new ArrayList<>();
-//               for(Employee info:var1.getEmployee_list()){
-//                   LogUtil.e("###queryEmployeeList.info.id ="+info.getEmp_id() +"  ---  time ="+info.getModify_time());
-//                   DbManger.getInstance().addEmployee(info);
-//                   EmployeeBo bo = new EmployeeBo();
-//                   bo.setEmpId(info.getEmp_id());
-//                   boList.add(bo);
-//               }
-//                LogUtil.e("###queryEmployeeInfo");
-//               queryEmployeeInfo(boList);
-//            }
-//
-//            @Override
-//            public void fail(int var1, String var2) {
-//                LogUtil.e("###queryEmployeeList fail");
-//                new Handler().postDelayed(employeeListRunnable,10*60*1000);
-//            }
-//        });
-//    }
-
-
     //获取人员信息
     private void queryEmployeeInfo(List<EmployeeBo> employeeBoList) {
         if (employeeBoList == null) {
@@ -538,21 +512,6 @@ public class GxSmzSdk implements SmzSdkImpl {
             DbManger.getInstance().addAttendanceBo(attendanceBo);
         }
     }
-
-
-//    private void uploadAttendance(String Direction, String Person_id, String Person_name, String Person_type, String Site_photo, String way) {
-//        GXSmzManger.getInstance().uploadPassedLog(Direction, Person_id, Person_name, Person_type, Site_photo, way, new rxApiCallBack() {
-//            @Override
-//            public void success(Object var1) {
-//
-//            }
-//
-//            @Override
-//            public void fail(int var1, String var2) {
-//
-//            }
-//        });
-//    }
 
 
 }

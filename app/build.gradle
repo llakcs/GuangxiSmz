@@ -1,11 +1,11 @@
-apply plugin: 'com.android.application'
-//apply plugin: 'com.android.library'
+//apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'org.greenrobot.greendao' // apply plugin
 android {
     compileSdkVersion 26
     defaultConfig {
-        applicationId "com.th.guangxismz"
+//        applicationId "com.th.guangxismz"
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 1
