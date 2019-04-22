@@ -105,23 +105,23 @@ public class SmzConfig implements SmzcImpl {
     }
 
     @Override
-    public CommonSendBo uploadAttendance(String Direction, String Person_id, String Person_name, String Person_type, String Site_photo, String way) {
+    public CommonSendBo uploadAttendance(List<AttendanceBo> attendanceBoGroup) {
         CommonSendBo sendBo = new CommonSendBo();
         commonData(sendBo);
         // 7. 上传考勤记录
-        AttendanceBo attendanceBo = new AttendanceBo();
-        List<AttendanceBo> attendanceBoGroup = new ArrayList<>();
-        attendanceBoGroup.add(attendanceBo);
-        attendanceBo.setDirection(Direction);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = new Date(System.currentTimeMillis());
-        String now = simpleDateFormat.format(date);
-        attendanceBo.setPassed_time(now);
-        attendanceBo.setPerson_id(Person_id);
-        attendanceBo.setPerson_name(Person_name);
-        attendanceBo.setPerson_type(Person_type);
-        attendanceBo.setSite_photo(Site_photo);
-        attendanceBo.setWay(way);
+//        AttendanceBo attendanceBo = new AttendanceBo();
+//        List<AttendanceBo> attendanceBoGroup = new ArrayList<>();
+//        attendanceBoGroup.add(attendanceBo);
+//        attendanceBo.setDirection(Direction);
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        Date date = new Date(System.currentTimeMillis());
+//        String now = simpleDateFormat.format(date);
+//        attendanceBo.setPassed_time(now);
+//        attendanceBo.setPerson_id(Person_id);
+//        attendanceBo.setPerson_name(Person_name);
+//        attendanceBo.setPerson_type(Person_type);
+//        attendanceBo.setSite_photo(Site_photo);
+//        attendanceBo.setWay(way);
         uploadAttendance(sendBo, attendanceBoGroup);
         return MD5Data(sendBo);
     }

@@ -1,5 +1,6 @@
 package com.th.guangxismz.Impl;
 
+import com.th.guangxismz.Bean.AttendanceBo;
 import com.th.guangxismz.Bean.CommonSendBo;
 import com.th.guangxismz.Bean.EmployeeBo;
 
@@ -15,7 +16,7 @@ public interface SmzcImpl {
     CommonSendBo Heartbeat();
     CommonSendBo queryListHash();
     CommonSendBo queryEmployeeList();
-    CommonSendBo uploadAttendance(String Direction,String Person_id,String Person_name,String Person_type,String Site_photo,String way);
+    CommonSendBo uploadAttendance(List<AttendanceBo> attendanceBoGroup);
     CommonSendBo queryEmployeeInfo(List<EmployeeBo> employeeBoList);
     CommonSendBo queryEmployeeIdInfo(String EmpId);
 

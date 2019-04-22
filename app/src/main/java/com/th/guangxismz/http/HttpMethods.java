@@ -56,7 +56,7 @@ public class HttpMethods {
                 //打印retrofit日志
                 try {
                     String text = URLDecoder.decode(message, "utf-8");
-                    LogUtil.d( "api_msg:" + text);
+                    LogUtil.e( "api_msg:" + text);
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
@@ -65,7 +65,7 @@ public class HttpMethods {
         });
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
-//                .addInterceptor(loggingInterceptor)//添加Log拦截器
+                .addInterceptor(loggingInterceptor)//添加Log拦截器
                 .addInterceptor(new CommonInterceptor(sendBo))//注入header
                 .build();
         retrofit = new Retrofit.Builder()

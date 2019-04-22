@@ -9,6 +9,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.google.common.collect.Lists;
+import com.th.guangxismz.Bean.AttendanceBo;
 import com.th.guangxismz.Bean.EmployeeBo;
 import com.th.guangxismz.Bean.EmployeeIdInfoResult;
 import com.th.guangxismz.Bean.EmployeeInfoResult;
@@ -26,7 +27,10 @@ import com.th.guangxismz.utils.LogUtil;
 import com.th.guangxismz.utils.RxScheduler;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +45,10 @@ public class GxSmzSdk implements SmzSdkImpl {
     private static final int NUM = 10;
     private GxSmzSdkListner mGxSmzSdkListner;
     private WeakReference<Context> mContext;
+    private AttendanceBo attendanceBoTemp;
+    private SimpleDateFormat df = new SimpleDateFormat("mm:ss");//设置日期格式
+    private boolean timelock = false;
+    private long lastTime;
 
     private static class RxHoler {
         private static final GxSmzSdk instance = new GxSmzSdk();
@@ -92,18 +100,17 @@ public class GxSmzSdk implements SmzSdkImpl {
     public void build() {
         //签到
         login();
-        Flowable.interval(1000, 60000, TimeUnit.MILLISECONDS)
+        //一分钟定时任务
+        Flowable.interval(1000, 60 * 1000, TimeUnit.MILLISECONDS)
                 .onBackpressureDrop()
                 .observeOn(Schedulers.newThread())
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long aLong) throws Exception {
-                        List<Employee> employeeList = DbManger.getInstance().queryEmloyeeList();
-                        if (employeeList != null) {
-                            if (mGxSmzSdkListner != null) {
-                                mGxSmzSdkListner.projectCount(employeeList.size());
-                            }
-                        }
+                        //返回项目总人数
+                        checkprojectCount();
+                        //时间区间比较
+                        timeCompare();
                     }
                 });
     }
@@ -113,6 +120,72 @@ public class GxSmzSdk implements SmzSdkImpl {
         this.mGxSmzSdkListner = gxSmzSdkListner;
         return this;
     }
+
+
+    private void checkprojectCount() {
+        List<Employee> employeeList = DbManger.getInstance().queryEmloyeeList();
+        if (employeeList != null) {
+            if (mGxSmzSdkListner != null) {
+                mGxSmzSdkListner.projectCount(employeeList.size());
+            }
+        }
+    }
+
+    //检查是否符合上传考勤记录时间
+    private void timeCompare() {
+        Date nowTime =null;
+        Date beginTime = null;
+        Date endTime = null;
+      try{
+          //格式化当前时间格式
+          nowTime = df.parse(df.format(new Date()));
+          //定义开始时间
+          beginTime = df.parse("40:00");
+          //定义结束时间
+          endTime = df.parse("44:59");
+      }catch (Exception e){
+          e.printStackTrace();
+      }
+      boolean flag = isEffectiveDate(nowTime,beginTime,endTime);
+      if(flag){//处于规定时间
+           LogUtil.e("###考勤记录上传时间 40:00-44:59");
+           List<AttendanceBo> attendanceBos = DbManger.getInstance().queryAttendanceBoList();
+           if(attendanceBos != null && attendanceBos.size() > 0){
+               GXSmzManger.getInstance().uploadAttendance(attendanceBos, new rxApiCallBack() {
+                   @Override
+                   public void success(Object var1) {
+                       LogUtil.e("###上传考勤记录成功,清空考勤记录数据库");
+                       DbManger.getInstance().cleanAttendanceBoAll();
+                   }
+
+                   @Override
+                   public void fail(int var1, String var2) {
+                       LogUtil.e("###上传考勤记录失败");
+                   }
+               });
+           }
+      }
+
+    }
+
+
+    private boolean isEffectiveDate(Date nowTime, Date beginTime, Date endTime) {
+        //设置当前时间
+        Calendar date = Calendar.getInstance();
+        date.setTime(nowTime);
+        //设置开始时间
+        Calendar begin = Calendar.getInstance();
+        begin.setTime(beginTime);
+        //设置结束时间
+        Calendar end = Calendar.getInstance();
+        end.setTime(endTime);
+        //处于开始时间之后，和结束时间之前的判断
+        if (date.after(begin) && date.before(end)) {
+            return true;
+        }
+        return false;
+    }
+
 
     private void login() {
         GXSmzManger.getInstance().signIn(new rxApiCallBack<GeneralResult>() {
@@ -145,8 +218,8 @@ public class GxSmzSdk implements SmzSdkImpl {
     @Override
     public EmployeeListBean queryImageForId(String empId) {
         EmployeeListBean employeeListBean = null;
-        List<EmployeeListBean> employeeListBeans=DbManger.getInstance().queryEmployeelistBeanbyId(empId);
-        for(EmployeeListBean bean:employeeListBeans){
+        List<EmployeeListBean> employeeListBeans = DbManger.getInstance().queryEmployeelistBeanbyId(empId);
+        for (EmployeeListBean bean : employeeListBeans) {
             employeeListBean = bean;
         }
         return employeeListBean;
@@ -378,7 +451,7 @@ public class GxSmzSdk implements SmzSdkImpl {
      * @param base64Data
      * @return
      */
-    public  Bitmap base64ToBitmap(String base64Data) {
+    public Bitmap base64ToBitmap(String base64Data) {
         byte[] bytes = Base64.decode(base64Data, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
@@ -401,7 +474,7 @@ public class GxSmzSdk implements SmzSdkImpl {
                                 e.printStackTrace();
                             }
                             if (bitmap != null) {
-                                 mGxSmzSdkListner.faceRegister(bitmap, employeeListBean);
+                                mGxSmzSdkListner.faceRegister(bitmap, employeeListBean);
 //                                if (result) {
 //                                    DbManger.getInstance().addEmployeeList(employeeListBean);
 //                                }
@@ -433,20 +506,37 @@ public class GxSmzSdk implements SmzSdkImpl {
             }
         });
     }
+
+
     //上传考勤记录
     @Override
     public void uploadAttendance(String Direction, String Person_id, String Person_name, String Person_type, String Site_photo, String way) {
-        GXSmzManger.getInstance().uploadPassedLog(Direction, Person_id, Person_name, Person_type, Site_photo, way, new rxApiCallBack() {
-            @Override
-            public void success(Object var1) {
-
+        AttendanceBo attendanceBo = new AttendanceBo();
+        attendanceBo.setDirection(Direction);
+        attendanceBo.setPerson_id(Person_id);
+        attendanceBo.setPerson_name(Person_name);
+        attendanceBo.setPerson_type(Person_type);
+        attendanceBo.setSite_photo(Site_photo);
+        attendanceBo.setWay(way);
+        if (attendanceBoTemp == null) {
+            attendanceBoTemp = attendanceBo;
+        } else {
+            //如果进出方向和ID一致认为是同一个人多次考勤
+            if (attendanceBoTemp.getDirection().equals(attendanceBo.getDirection()) && attendanceBoTemp.getPerson_id().equals(attendanceBo.getPerson_id())) {
+                timelock = true;
+                if (System.currentTimeMillis() - lastTime > 3000) {
+                    attendanceBoTemp = null;
+                    timelock = false;
+                }
+            } else {
+                attendanceBoTemp = attendanceBo;
+                lastTime = System.currentTimeMillis();
             }
+        }
 
-            @Override
-            public void fail(int var1, String var2) {
-
-            }
-        });
+        if (!timelock) {//存放本地数据库
+            DbManger.getInstance().addAttendanceBo(attendanceBo);
+        }
     }
 
 

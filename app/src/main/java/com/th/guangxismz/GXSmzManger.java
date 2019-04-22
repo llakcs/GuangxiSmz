@@ -1,5 +1,6 @@
 package com.th.guangxismz;
 
+import com.th.guangxismz.Bean.AttendanceBo;
 import com.th.guangxismz.Bean.CommonSendBo;
 import com.th.guangxismz.config.SmzConfig;
 import com.th.guangxismz.http.RxHttp;
@@ -21,6 +22,8 @@ public class GXSmzManger implements SmzImpl {
     public static GXSmzManger getInstance() {
         return GXSmzManger.RxHoler.instance;
     }
+
+
 
     @Override
     public void signIn(rxApiCallBack rxApiCallBack) {
@@ -51,11 +54,12 @@ public class GXSmzManger implements SmzImpl {
     }
 
     @Override
-    public void uploadPassedLog(String Direction, String Person_id, String Person_name, String Person_type, String Site_photo, String way, rxApiCallBack rxApiCallBack) {
-        CommonSendBo sendBo = SmzConfig.getInstance().uploadAttendance(Direction,Person_id,Person_name,Person_type,Site_photo,way);
+    public void uploadAttendance(List bolist, rxApiCallBack rxApiCallBack) {
+        CommonSendBo sendBo = SmzConfig.getInstance().uploadAttendance(bolist);
         RequestBody requestBody= SmzConfig.getInstance().getRequestBody(sendBo);
         RxHttp.getInstance().uploadPassedLog(requestBody, sendBo,rxApiCallBack);
     }
+
 
     @Override
     public void queryEmployeeInfo(List employeeBoList, rxApiCallBack rxApiCallBack) {

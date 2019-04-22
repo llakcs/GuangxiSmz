@@ -2,6 +2,7 @@ package com.th.guangxismz.Impl;
 
 import android.content.Context;
 
+import com.th.guangxismz.Bean.AttendanceBo;
 import com.th.guangxismz.Bean.Employee;
 import com.th.guangxismz.Bean.EmployeeListBean;
 
@@ -21,6 +22,10 @@ public interface DbImpl {
     void cleanEmployeeListBeanAll();
     List<EmployeeListBean> queryEmployeelistBeanbyId(String empid);
     List<EmployeeListBean> queryEmployeeListBeanAll();
-
+    void addAttendanceBo(AttendanceBo attendanceBo);
+    void deleteAttendanceBo(AttendanceBo attendanceBo);
+    void updatAttendanceBo(AttendanceBo attendanceBo);
+    void cleanAttendanceBoAll();
+    List<AttendanceBo> queryAttendanceBoList();
 
 }

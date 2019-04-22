@@ -3,6 +3,7 @@ package com.th.guangxismz;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.th.guangxismz.Bean.AttendanceBo;
 import com.th.guangxismz.Bean.DaoMaster;
 import com.th.guangxismz.Bean.DaoSession;
 import com.th.guangxismz.Bean.Employee;
@@ -55,7 +56,7 @@ public class DbManger implements DbImpl {
         mDaoRSession = mDaoReadMaster.newSession();
         mDaoWSession = mDaoWriteMaster.newSession();
     }
-
+    //人员名单表操作如下
     @Override
     public void addEmployee(Employee employee) {
         mDaoWSession.getEmployeeDao().insert(employee);
@@ -88,6 +89,9 @@ public class DbManger implements DbImpl {
         return employeeList;
     }
 
+
+
+    //人员详细信息表操作如下
     @Override
     public void addEmployeeList(EmployeeListBean bean) {
         mDaoWSession.getEmployeeListBeanDao().insert(bean);
@@ -116,5 +120,31 @@ public class DbManger implements DbImpl {
     @Override
     public List<EmployeeListBean> queryEmployeeListBeanAll() {
         return null;
+    }
+
+    //考勤记录表操作
+    @Override
+    public void addAttendanceBo(AttendanceBo attendanceBo) {
+        mDaoWSession.getAttendanceBoDao().insert(attendanceBo);
+    }
+
+    @Override
+    public void deleteAttendanceBo(AttendanceBo attendanceBo) {
+        mDaoWSession.getAttendanceBoDao().delete(attendanceBo);
+    }
+
+    @Override
+    public void updatAttendanceBo(AttendanceBo attendanceBo) {
+        mDaoWSession.getAttendanceBoDao().update(attendanceBo);
+    }
+
+    @Override
+    public void cleanAttendanceBoAll() {
+        mDaoWSession.getAttendanceBoDao().deleteAll();
+    }
+
+    @Override
+    public List<AttendanceBo> queryAttendanceBoList() {
+        return mDaoWSession.getAttendanceBoDao().loadAll();
     }
 }
