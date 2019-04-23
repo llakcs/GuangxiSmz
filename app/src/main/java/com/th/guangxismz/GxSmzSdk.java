@@ -73,12 +73,6 @@ public class GxSmzSdk implements SmzSdkImpl {
         }
     };
 
-//    private Runnable employeeListRunnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            queryEmployeeList();
-//        }
-//    };
 
 
     @Override
